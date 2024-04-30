@@ -1,9 +1,11 @@
 import logging
+import asyncio
 
 from telegram.ext import ApplicationBuilder
 
 from config import load_config
 from handlers import register_handlers
+from database import setup_database
 
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,3 +24,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    asyncio.run(setup_database())

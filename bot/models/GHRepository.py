@@ -6,13 +6,15 @@ class GHRepository:
     GHRepository class represents a tracked repository and some settings plus utility information
     """
 
-    def __init__(self, full_name):
+    def __init__(self, chat_id, full_name, last_access_time=datetime.datetime.now()):
         """
         Constructor for the GHRepository class.
         Sets the full name of the repository and records the first access time.
         """
+        self.chat_id = chat_id
         self.full_name = full_name
-        self.last_access_time = datetime.datetime.now()
+        self.last_access_time = last_access_time
+
 
     def update_name(self, new_name):
         """
