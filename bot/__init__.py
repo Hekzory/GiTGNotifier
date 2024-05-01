@@ -6,7 +6,7 @@ from telegram.ext import ApplicationBuilder
 from config import ConfigManager
 from database import DatabaseManager
 from handlers import register_handlers
-from tasks import check_all_for_pr
+from tasks import check_all_for_pr, check_all_for_commits
 
 logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -32,6 +32,7 @@ def main():
     logging.getLogger().info("Adding tasks to job queue")
     job_queue = application.job_queue
     job_notify = job_queue.run_repeating(check_all_for_pr, interval=60 * 60, first=30)
+    job_notify2 = job_queue.run_repeating(check_all_for_commits, interval=60 * 60, first=30)
     logging.getLogger().info("Application created")
 
     register_handlers(application)

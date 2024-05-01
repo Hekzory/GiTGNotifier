@@ -5,12 +5,12 @@ from telegram.ext import CommandHandler, ContextTypes
 
 from database import DatabaseManager
 from models.GHRepository import GHRepository
-from utils import check_for_pr
+from utils import check_for_pr, check_for_commits
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="I am a bot which is responsible for tracking GitHub PRs.")
+                                   text="I am a bot which is responsible for tracking GitHub PRs and commits.")
 
 
 async def set_repository(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -72,6 +72,16 @@ async def check_for_pr_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                                        text="Incorrect argument count. Correct example: \n\"/checkpr\"")
 
 
+async def check_for_commits_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    command = update.message.text.strip().split()
+    if len(command) == 1:
+        text = await check_for_commits(update.effective_chat.id)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text="Incorrect argument count. Correct example: \n\"/checkcm\"")
+
+
 def register_handlers(application):
     start_handler = CommandHandler("start", start)
     application.add_handler(start_handler)
@@ -83,4 +93,6 @@ def register_handlers(application):
     application.add_handler(check_pr_handler)
     delete_handler = CommandHandler("delete", delete_repository)
     application.add_handler(delete_handler)
+    commit_handler = CommandHandler("checkcm", check_for_commits_handler)
+    application.add_handler(commit_handler)
     logging.getLogger().info("Handlers registered")

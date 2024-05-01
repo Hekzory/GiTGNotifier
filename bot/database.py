@@ -32,7 +32,8 @@ class DatabaseManager:
                     CREATE TABLE IF NOT EXISTS repository (
                         chat_id BIGINT NOT NULL,
                         repo_name TEXT NOT NULL,
-                        last_access_time TIMESTAMP NOT NULL
+                        last_pr_time TIMESTAMP NOT NULL,
+                        last_commit_time TIMESTAMP NOT NULL
                     );
                 ''')
 
@@ -45,8 +46,8 @@ class DatabaseManager:
             async with connection.transaction():
                 if await cls.is_new_repository(repository.chat_id, repository.full_name):
                     await connection.execute('''
-                        INSERT INTO repository(chat_id, repo_name, last_access_time) VALUES(%s, %s, %s);
-                    ''', (repository.chat_id, repository.full_name, repository.last_access_time))
+                        INSERT INTO repository(chat_id, repo_name, last_pr_time, last_commit_time) VALUES(%s, %s, %s, %s);
+                    ''', (repository.chat_id, repository.full_name, repository.last_pr_time, repository.last_commit_time))
                     return True
                 return False
 
@@ -88,14 +89,25 @@ class DatabaseManager:
                     return [row[0] for row in rows]
 
     @classmethod
-    async def update_repos_access_time_by_chat_id(cls, chat_id):
+    async def update_repos_pr_time_by_chat_id(cls, chat_id):
         """
-        Update last access times based on chat id
+        Update last pr times based on chat id
         """
         async with await cls.get_db_conn() as connection:
             async with connection.transaction():
                 await connection.execute('''
-                UPDATE repository SET last_access_time = NOW() WHERE chat_id = %s;
+                UPDATE repository SET last_pr_time = NOW() WHERE chat_id = %s;
+                ''', (chat_id,))
+
+    @classmethod
+    async def update_repos_commit_time_by_chat_id(cls, chat_id):
+        """
+        Update last commit times based on chat id
+        """
+        async with await cls.get_db_conn() as connection:
+            async with connection.transaction():
+                await connection.execute('''
+                UPDATE repository SET last_commit_time = NOW() WHERE chat_id = %s;
                 ''', (chat_id,))
 
     @classmethod
@@ -115,4 +127,4 @@ class DatabaseManager:
         """
         Builds a new repository object from the given row
         """
-        return GHRepository(row[0], row[1], row[2])
+        return GHRepository(row[0], row[1], row[2], row[3])
