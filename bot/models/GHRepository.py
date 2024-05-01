@@ -15,7 +15,6 @@ class GHRepository:
         self.full_name = full_name
         self.last_access_time = last_access_time
 
-
     def update_name(self, new_name):
         """
         Updates the full name of the repository.

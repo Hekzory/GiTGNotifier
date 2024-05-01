@@ -2,12 +2,13 @@ from datetime import datetime
 
 import requests
 
+from database import DatabaseManager
 from models.GHRepository import GHRepository
 
 
 async def check_for_new_pr(repo: GHRepository) -> str:
     """
-    Utility function for checking if there are any new PRs since last access time
+    Utility function for checking specific repo's PRs since last access time
     """
 
     url = f'https://api.github.com/repos/{repo.full_name}/pulls'
@@ -24,8 +25,23 @@ async def check_for_new_pr(repo: GHRepository) -> str:
                 new_pull_requests.append(pr)
 
         if new_pull_requests:
-            return "\n".join([f"New Pull Request: {pr['title']}" for pr in new_pull_requests])
+            return "\n".join([f"New Pull Request at {repo.full_name}: {pr['title']}\n" for pr in new_pull_requests])
         else:
-            return "No new pull requests found."
+            return f"No new pull requests found for {repo.full_name}.\n"
     else:
-        return f"Error fetching pull requests: {response.status_code}"
+        return f"Error fetching pull requests for {repo.full_name}: {response.status_code}\n"
+
+
+async def check_for_pr(chat_id):
+    """
+    Utility function for checking all new PRs for chat_id since last access time
+    """
+    result: list[GHRepository] = await DatabaseManager.get_repos_by_chat_id(chat_id)
+    if len(result) > 0:
+        text = "Current results for repositories are: \n"
+        for repo in result:
+            text += await check_for_new_pr(repo)
+            await DatabaseManager.update_repos_access_time_by_chat_id(chat_id)
+        return text
+    else:
+        return "Tracked repositories is currently not set."

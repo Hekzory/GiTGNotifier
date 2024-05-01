@@ -1,5 +1,6 @@
-python-telegram-bot~=21.0.1
-python-telegram-bot[ext]~=21.0.1
-python-telegram-bot[http2]~=21.0.1
+python-telegram-bot~=21.1.1
+python-telegram-bot[ext]~=21.1.1
+python-telegram-bot[http2]~=21.1.1
+python-telegram-bot[job-queue]~=21.1.1
 requests
 psycopg[binary]
